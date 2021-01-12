@@ -1,7 +1,7 @@
 const config = {
     host: 'localhost',
     user: 'root',
-    password: '8292kenn',
+    password: '',
     database: 'cruddatabase'
 }
 
