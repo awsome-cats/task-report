@@ -17,31 +17,31 @@
             </div>
           </div>
           
-          <div id="gantt-task-list">
-            <div v-for="(list, index) in lists" :key="index"
+          <div id="gantt-task-list" class="overflow-y-hidden" :style="`height:${calendarViewHeight}`">
+            <div v-for="(task, index) in displayTasks" :key="index"
             class="flex h-10 border-b"
             >
-            <template v-if="list.cat === 'category'">
+            <template v-if="task.cat === 'category'">
               <div class="flex items-center font-bold w-ful text-sm pl-4">
-                {{ list.name }}
+                {{ task.name }}
               </div>
             </template>
 
             <template v-else>
               <div class="border-r flex items-center font-bold w-48 text-sm pl-4" >
-                {{list.name}}
+                {{task.name}}
               </div>
               <div class="border-r flex items-center justify-center w-24 text-xs p-2">
-                {{list.start_date}}
+                {{task.start_date}}
               </div>
               <div class="border-r flex items-center justify-center w-24 text-xs p-2">
-                  {{list.end_date }}
+                  {{task.end_date }}
               </div>
               <div class="border-r flex items-center justify-center w-16 text-xs">
-                {{ list.incharge_user}}
+                {{ task.incharge_user}}
               </div>
               <div class="flex items-center justify-content w-12 test-sm">
-                {{ list.percentage}}
+                {{ task.percentage}}
               </div>
             </template>
           </div>
@@ -51,7 +51,7 @@
 
       <!-- カレンダー Start -->
       <div id="gantt-calendar"
-      class="overflow-x-scroll w-1/2 border-1"
+      class="overflow-x-scroll overflow-y-hidden w-1/2 border-1"
       :style="`width:${calendarViewWidth}px`"
       ref="calendar"
       >
@@ -114,7 +114,7 @@
         height:${calendarViewHeight}px`"
         >
           <div v-for="(bar, index) in taskBars" :key="index">
-            <div :style="bar.style" class="rounded-lg absolute h-5 bg-orange-200" v-if="bar.list.cat === 'task'">
+            <div :style="bar.style" class="rounded-lg absolute h-5 bg-orange-200" v-if="bar.task.cat === 'task'">
               <div class="w-full h-full">
               </div>
             </div>
@@ -159,7 +159,7 @@ export default {
           task_height: '',
           today:moment(),
           apiTasks: [],
-          position_Id:0,
+          position_id : 0,
           categories: [
             {
             id: 1,
@@ -226,6 +226,60 @@ export default {
             incharge_user: '力',
             percentage: 0,
             },
+            {
+            id: 7,
+            category_id: 1,
+            name:  'テスト7',
+            start_date: '2020-12-01',
+            end_date: '2020-12-10',
+            incharge_user: '力',
+            percentage: 60,
+            },
+            {
+            id: 8,
+            category_id: 1,
+            name: 'テスト8',
+            start_date: '2020-12-02',
+            end_date: '2020-12-04',
+            incharge_user: '力',
+            percentage: 5,
+            },
+            {
+            id: 9,
+            category_id: 2,
+            name:  'テスト9',
+            start_date: '2020-12-03',
+            end_date: '2020-12-08',
+            incharge_user: '力',
+            percentage: 0,
+            },
+            {
+            id: 10,
+            category_id: 1,
+            name:  'テスト10',
+            start_date: '2020-12-04',
+            end_date: '2020-11-30',
+            incharge_user: '力',
+            percentage: 60,
+            },
+            {
+            id: 11,
+            category_id: 1,
+            name: 'テスト11',
+            start_date: '2020-12-05',
+            end_date: '2020-12-07',
+            incharge_user: '力',
+            percentage: 5,
+            },
+            {
+            id: 12,
+            category_id: 2,
+            name:  'テスト12',
+            start_date: '2020-12-07',
+            end_date: '2020-12-08',
+            incharge_user: '力',
+            percentage: 0,
+            },
         ],
       }
   },
@@ -239,9 +293,9 @@ export default {
       // 上部のheaderとタスク領域の高さを差し引く
       return this.inner_height - this.task_height -48 -20;
     },
-    displaytasks() {
+    displayTasks() {
       let display_task_number = Math.floor(this.calendarViewHeight / 40);
-      return this.apiTasks.slice(this.position_Id, this.position_Id + display_task_number)
+      return this.lists.slice(this.position_id, this.position_id + display_task_number)
     },
     lists() {
       let lists = [];
@@ -263,11 +317,11 @@ export default {
       let between;
       let start;
       let style;
-      return this.lists.map(list => {
+      return this.displayTasks.map(task => {
         style = {}
-        if(list.cat==='task'){
-          let date_from = moment(list.start_date);
-          let date_to = moment(list.end_date);
+        if(task.cat==='task'){
+          let date_from = moment(task.start_date);
+          let date_to = moment(task.end_date);
           between = date_to.diff(date_from, 'days');
           between++;
           start = date_from.diff(start_date, 'days');
@@ -281,7 +335,7 @@ export default {
         top = top + 40;
         return {
           style,
-          list
+          task
         }
       })
     },
@@ -363,11 +417,11 @@ export default {
     //  console.log('task_widtj', this.task_width, 'task_height', this.task_height)
    },
    windowSizeCheck() {
-     let height = this.apiTasks.length - this.position_Id
+     let height = this.lists.length - this.position_id
      if (event.deltaY > 0 && height * 40 > this.calendarViewHeight) {
        this.position_id++
-     } else if (event.deltaY < 0 && this.position_Id !==0)
-     this.position_Id--
+     } else if (event.deltaY < 0 && this.position_id !==0)
+     this.position_id--
    },
    
    todayPosition () {

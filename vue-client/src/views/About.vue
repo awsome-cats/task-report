@@ -150,7 +150,7 @@ export default {
           task_height: '',
           today:moment(),
           apiTasks: [],
-          position_Id:0,
+          position_id:0,
           categories: [
             {
             id: 1,
