@@ -4,6 +4,7 @@
       <h1 class="text-xl font-bold">ガントチャート</h1>
     </div>
     <div id="gantt-content" class="flex" >
+
       <div id="gantt-task">
         <div id="gantt-task">
           <div id="gantt-task-title" class="flex items-center bg-blue-500 text-white h-20" ref="task">
@@ -11,47 +12,36 @@
             </div>
             <div class="border-t border-r border-b flex items-center justify-center font-bold text-xs w-24 h-full">開始日
             </div>
-            <div class="border-t border-r border-b flex items-center justify-center font-bold text-xs w-24 h-full">終了日
+            <div class="border-t border-r border-b flex items-center justify-center font-bold text-xs w-80 h-full">終了日
             </div>
             <div class="border-t border-r border-b flex items-center justify-center font-bold text-xs w-16 h-full">ユーザー名
             </div>
           </div>
-          
-          <div id="gantt-task-list">
-            <div v-for="(list, index) in lists" :key="index"
-            class="flex h-10 border-b"
-            >
-            <template v-if="list.cat === 'category'">
-              <div class="flex items-center font-bold w-ful text-sm pl-4">
-                {{ list.name }}
-              </div>
-            </template>
-
-            <template v-else>
-              <div class="border-r flex items-center font-bold w-48 text-sm pl-4" >
-                {{list.name}}
+          <div id="gantt-task-list"
+          :style="`height:${calendarViewHeight}px`"
+          >
+          <div class="flex h-10 border-b" v-for="(list,index) in lists" :key="index">
+              <div class="border-r flex items-center font-bold w-36 text-xs pl-4">
+                <p>{{list.name}}</p>
               </div>
               <div class="border-r flex items-center justify-center w-24 text-xs p-2">
-                {{list.start_date}}
+                <!-- {{apiTask.order_code}} -->{{list.start_date}}
               </div>
-              <div class="border-r flex items-center justify-center w-24 text-xs p-2">
-                  {{list.end_date }}
+              <div class="border-r flex items-center justify-center w-80 text-xs p-2">
+                {{list.end_date }}
               </div>
               <div class="border-r flex items-center justify-center w-16 text-xs">
+                <!-- {{apiTask.sum_time / 60}}時間 -->
                 {{ list.incharge_user}}
               </div>
-              <div class="flex items-center justify-content w-12 test-sm">
-                {{ list.percentage}}
-              </div>
-            </template>
           </div>
         </div>
-     </div>
-     </div>
+        </div>
+      </div>
 
       <!-- カレンダー Start -->
       <div id="gantt-calendar"
-      class="overflow-x-scroll w-1/2 border-1"
+      class="overflow-x-scroll border-1"
       :style="`width:${calendarViewWidth}px`"
       ref="calendar"
       >
@@ -61,7 +51,7 @@
           <div id="gantt-year-month" class="relative h-8 text-xs">
             <div v-for="(calendar, index) in calendars"
             :key="index">
-              <div class="bg-indigo-700 text-white border-b border-r border-t h-8 absolute font-bold text-xs items-center justify-center"
+              <div class="bg-indigo-700 text-white border-b border-r border-t h-8 absolute font-bold text-sm flex items-center justify-center"
               :style="
               `width:${calendar.calendar*block_size}px;
               left:${calendar.start_block_number*block_size}px`"
@@ -76,13 +66,14 @@
             :key="index">
               <div v-for="(day,index) in calendar.days"
               :key="index">
-                <div class="text-xs border-r border-b h-12 absolute flex items-center justify-center flex-col text-xs"
+                <div class="text-xs border-r border-b h-12 absolute flex items-center justify-center flex-col font-bold text-xs"
                 :class="{
                   'bg-blue-100': day.dayOfWeek === '土',
-                  'bg-red-100': day.dayOfWeek === '日',
-                  'bg-red-600 test-white':calendar.year === today.year() && calendar.month === today.month() && day.day === today.date()}"
+                  'bg-red-100': day.dayOfWeek === '日'
+                }"
                 :style="
-                `width: ${block_size}px;left:${day.block_number*block_size}px`"
+                `width: ${block_size}px;
+                 left:${day.block_number*block_size}px`"
                 >
                 <span class="text-xs">{{day.day}}</span>
                 <span class="text-xs">{{day.dayOfWeek}}</span>
@@ -92,9 +83,9 @@
           </div>
 
           <div class="gantt-height relative text-xs">
-            <div v-for="(calendar, index) in calendars"
+            <div v-for="(calendar, index) in calendars" 
             :key="index">
-              <div v-for="(day, index) in calendar.days"
+              <div v-for="(day, index) in calendar.days" 
               :key="index">
                 <div class="border-r border-b absolute text-xs"
                 :style="
@@ -143,14 +134,14 @@
 </template>
 
 <script>
-// import axios from 'axios'
+import axios from 'axios'
 import moment from 'moment'
 export default {
   data(){
       return {
           start_month: '2020-10',
           end_month: '2021-2',
-          block_size: 12, // 一日の横幅 
+          block_size: 30, // 一日の横幅 
           block_number: 0, // カレンダーの開始日
           calendars:[],
           inner_width: '',
@@ -230,13 +221,10 @@ export default {
       }
   },
   computed: {
-    // カレンダーのwidthをもとめる
     calendarViewWidth() {
       return this.inner_width - this.task_width;
     },
-    // カレンダーの高さを求める
     calendarViewHeight () {
-      // 上部のheaderとタスク領域の高さを差し引く
       return this.inner_height - this.task_height -48 -20;
     },
     displaytasks() {
@@ -285,26 +273,18 @@ export default {
         }
       })
     },
-    scrollDistance() {
-     let start_date = moment(this.start_month)
-     let between_days = this.today.diff(start_date, 'days')
-     return (between_days + 1) * this.block_size - this.calendarViewWidth /2;
-   }
   },
   mounted: function() {
     console.log('getDays', this.getDays('2020','10',0))
     this.getCalendar()
     this.getWindowSize()
-    window.addEventListener('resize', this.getWindowSize, false)
-    window.addEventListener('wheel', this.windowSizeCheck)
-    this.$nextTick(() => {
-      this.todayPosition()
+    // window.addEventListener('resize', this.getWindowSize, false)
+    // window.addEventListener('wheel', this.windowSizeCheck)
+    axios.get('http://localhost:3001/api/get/all')
+    .then(response => {
+      console.log('response', response.data)
+      this.apiTasks = response.data
     })
-    // axios.get('http://localhost:3001/api/get/all')
-    // .then(response => {
-    //   console.log('response', response.data)
-    //   this.apiTasks = response.data
-    // })
   },
   methods: {
     getDays(year, month, block_number) {
@@ -359,8 +339,6 @@ export default {
      this.inner_height = window.innerHeight
      this.task_width = this.$refs.task.offsetWidth
      this.task_height = this.$refs.task.offsetHeight
-     // width: 400 height: 80とわかる
-    //  console.log('task_widtj', this.task_width, 'task_height', this.task_height)
    },
    windowSizeCheck() {
      let height = this.apiTasks.length - this.position_Id
@@ -369,7 +347,11 @@ export default {
      } else if (event.deltaY < 0 && this.position_Id !==0)
      this.position_Id--
    },
-   
+   scrollDistance() {
+     let start_date = moment(this.start_month)
+     let between_days = this.today.diff(start_date, 'days')
+     return between_days * this.block_size;
+   },
    todayPosition () {
      this.$refs.calender.scrollLeft = this.scrollDistance
    }
