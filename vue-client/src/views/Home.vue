@@ -49,7 +49,11 @@
      </div>
      </div>
 
-      <!-- カレンダー Start -->
+      <!-- カレンダー Start 
+      overflow-x-scroll: x軸のスクロールを表示
+      overflow-y-hidden: y軸のスクロールを非表示
+      -->
+
       <div id="gantt-calendar"
       class="overflow-x-scroll overflow-y-hidden w-1/2 border-1"
       :style="`width:${calendarViewWidth}px`"
@@ -66,6 +70,7 @@
               `width:${calendar.calendar*block_size}px;
               left:${calendar.start_block_number*block_size}px`"
               >
+              <!-- 2020年10月 -->
               {{ calendar.date }}
               </div>
             </div>
@@ -84,6 +89,7 @@
                 :style="
                 `width: ${block_size}px;left:${day.block_number*block_size}px`"
                 >
+                <!-- 日にちと曜日 -->
                 <span class="text-xs">{{day.day}}</span>
                 <span class="text-xs">{{day.dayOfWeek}}</span>
                 </div>
@@ -96,7 +102,7 @@
             :key="index">
               <div v-for="(day, index) in calendar.days"
               :key="index">
-                <div class="border-r border-b absolute text-xs"
+                <div class="fonts border-r border-b absolute text-xs"
                 :style="
                 `width:${block_size}px;
                 left:${day.block_number*block_size}px;
@@ -150,7 +156,7 @@ export default {
       return {
           start_month: '2020-10',
           end_month: '2021-2',
-          block_size: 12, // 一日の横幅 
+          block_size: 16, // 一日の横幅 
           block_number: 0, // カレンダーの開始日
           calendars:[],
           inner_width: '',
@@ -346,7 +352,7 @@ export default {
    }
   },
   mounted: function() {
-    console.log('getDays', this.getDays('2020','10',0))
+    console.log('getDays', this.getDays('2020','10',0)) // year, month, number
     this.getCalendar()
     this.getWindowSize()
     window.addEventListener('resize', this.getWindowSize, false)
@@ -361,6 +367,7 @@ export default {
     // })
   },
   methods: {
+    // 日付と曜日を持った配列
     getDays(year, month, block_number) {
       const dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
       let days = [];
@@ -391,6 +398,7 @@ export default {
       let end_month = moment(this.end_month)
       // 差分
       let between_month = end_month.diff(start_month, 'months')
+      // 差分の月の分だけgetDaysを行う
       for (let i = 0; i <= between_month; i++) {
         days = this.getDays(start_month.year(), start_month.format('MM'), block_number);
         this.calendars.push({
@@ -425,9 +433,16 @@ export default {
    },
    
    todayPosition () {
-     this.$refs.calender.scrollLeft = this.scrollDistance
+     this.$refs.calendar.scrollLeft = this.scrollDistance
    }
   }
 }
 </script>
+
+<style scoped>
+.gantt-height > span {
+  font-size: 8px;
+  color: rgb(194, 35, 133);
+}
+</style>
 
